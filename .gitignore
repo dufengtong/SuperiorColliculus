@@ -1,0 +1,9 @@
+*.npz
+*.zip
+*.npy
+*.xlsx
+*.jpg
+*.png
+
+__pycache__/
+data/
