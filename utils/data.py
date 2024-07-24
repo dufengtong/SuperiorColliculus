@@ -1,4 +1,24 @@
 import numpy as np
+import csv
+
+
+def extract_number_from_path(file_path):
+    # Split the path by backslashes and get the last part (filename)
+    filename = file_path.split('\\')[-1]
+    # Remove the file extension and convert to integer
+    number = int(filename.split('.')[0])
+    return number
+
+def read_and_parse_csv(file_path):
+    numbers = []
+    with open(file_path, mode='r') as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            if '.jpg' in row[0]:  
+                number = extract_number_from_path(row[0])
+                numbers.append(number)
+    numbers = np.array(numbers)
+    return numbers
 
 def load_sc_data(img_downsample = 1,
                  use_sensorium_normalization = False,
