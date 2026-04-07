@@ -1,4 +1,41 @@
 import approxineuro.encoder_multiconv as encoder
+import numpy as np
+
+def calculate_receptive_fields(noise_spks, sparse_maps):
+    """
+    Calculate ON and OFF receptive fields for each neuron.
+    
+    Parameters:
+    - noise_spks: np.ndarray, shape (n_neurons, n_trials)
+    - sparse_maps: np.ndarray, shape (n_trials, Ly, Lx)
+    
+    Returns:
+    - on_rf: np.ndarray, shape (n_neurons, Ly, Lx)
+    - off_rf: np.ndarray, shape (n_neurons, Ly, Lx)
+    """
+    n_neurons, n_trials = noise_spks.shape
+    n_trials, Ly, Lx = sparse_maps.shape
+
+    # Initialize ON and OFF receptive fields
+    on_rf = np.zeros((n_neurons, Ly, Lx))
+    off_rf = np.zeros((n_neurons, Ly, Lx))
+
+    # Iterate over each location in the visual field
+    for y in range(Ly):
+        for x in range(Lx):
+            # Find trials where the spot at (y, x) is ON (white) or OFF (black)
+            on_trials = sparse_maps[:, y, x] == 1
+            off_trials = sparse_maps[:, y, x] == 0
+
+            # Calculate the average response for ON spots at (y, x)
+            if np.any(on_trials):
+                on_rf[:, y, x] = np.mean(noise_spks[:, on_trials], axis=1)
+
+            # Calculate the average response for OFF spots at (y, x)
+            if np.any(off_trials):
+                off_rf[:, y, x] = np.mean(noise_spks[:, off_trials], axis=1)
+    
+    return on_rf, off_rf
 
 def build_model(n_layers, n_conv, n_conv_mid,highres=True, multikernel=False, multikernel_sizes=[9,25,49], 
                 depth_separable=True, pool=True, clamp=True, use_sensorium_normalization=True):
